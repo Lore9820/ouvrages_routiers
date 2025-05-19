@@ -573,8 +573,8 @@ class ProfileAnalyzer:
                     'slope_ouvrage': slope_ouvrage
                 })
 
-                # Visualize the profile every 500 meters
-                if int(current_distance) % 500 == 0:
+                # Visualize the profile every 100 meters
+                if int(current_distance) % 100 == 0:
                     self.visualize_profile(i, perpendicular_line, reg, coef, current_distance, self.output_folder)
 
                 current_distance += 1
