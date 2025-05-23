@@ -2,14 +2,14 @@ from profile_analyzer_viz import ProfileAnalyzer
 from segments_constructor import SegmentConstructor
 from select_ouvrages import OuvragesSelector
 
-route = input("Saisir le code de la route (ex. A33): ")
-
-output_folder = f"output_{route}"
-
-classification_threshold_remblai = 2
-classification_threshold_deblai = -2
-
 def main():
+    route = input("Saisir le code de la route (ex. A33): ")
+
+    output_folder = f"output_{route}"
+
+    classification_threshold_remblai = 2
+    classification_threshold_deblai = -2
+
     analyzer = ProfileAnalyzer(
         mnt_path = "data/mnt.tif",
         output_folder = output_folder,
