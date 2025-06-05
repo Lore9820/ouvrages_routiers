@@ -297,7 +297,8 @@ class SegmentConstructor:
     def save_output(self, ouvrages_gdf):
         # Create output folder if it doesn't exist
         os.makedirs(self.output_folder, exist_ok=True)
-        output_file = os.path.join(self.output_folder, "ouvrages.gpkg")
+        file_name = f"ouvrages_{self.route_number}.gpkg"
+        output_file = os.path.join(self.output_folder, file_name)
         
         # Save segments
         ouvrages_gdf.to_file(output_file, driver='GPKG', layer='segments')
