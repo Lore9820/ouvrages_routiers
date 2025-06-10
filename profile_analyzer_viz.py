@@ -255,7 +255,7 @@ class ProfileAnalyzer:
         self.logger.info(f"\nNatural slope: {natural_slope}")
 
         # Calculate initial interpolated altitude
-        interpolated_natural_altitude = self.calculate_interpolated_altitude(j, reg)
+        #interpolated_natural_altitude = self.calculate_interpolated_altitude(j, reg)
 
         # Initialize variables to track intersection
         prev_difference = None
@@ -302,16 +302,33 @@ class ProfileAnalyzer:
         
         # Calculate properties of ouvrage
         alt_max = current_altitude
+        dist_max = j
         distance = abs(dist_min - j)
 
         height_difference = alt_max - alt_min
-        slope_ouvrage = height_difference / distance
+        slope_ouvrage_total = height_difference / distance
+
+        # Slopes at the top and bottom of an ouvrage are not relaible, so we calculate the slope based on the middle section, if possible
+        slope_ouvrage_section = None
+        safety_margin = 2
+        if distance > (safety_margin * 2):
+            point_min = perpendicular_line.interpolate(dist_min+2)
+            point_max = perpendicular_line.interpolate(dist_max-2)
+            slope_ouvrage_section = self.calculate_slope(point_min, point_max)
+
+        # Slopes of the middle section are more reliable
+        slope_ouvrage_middle = None
+        middle_margin = 1
+        if distance > (2 * middle_margin):
+            point_middle_min = perpendicular_line.interpolate(dist_min + (distance / 2) - middle_margin)
+            point_middle_max = perpendicular_line.interpolate(dist_min + (distance / 2) + middle_margin)
+            slope_ouvrage_middle = self.calculate_slope(point_middle_min, point_middle_max)
 
         self.logger.info(f"\nFound significant slope change:")
-        self.logger.info(f"Final slope: {slope_ouvrage}")
+        self.logger.info(f"Final slope: {slope_ouvrage_total}")
         self.logger.info(f"Height difference: {height_difference}")
 
-        return slope_ouvrage, height_difference, calculation_points
+        return slope_ouvrage_total, slope_ouvrage_section, slope_ouvrage_middle, height_difference, calculation_points
 
     def calculate_attributes_remblai(self, perpendicular_line, reg, coef):
         """Calculate attributes for remblai profile"""
@@ -396,7 +413,7 @@ class ProfileAnalyzer:
         # Check if we hit the iteration limit
         if iteration_count >= max_iterations:
             self.logger.warning("Max iterations reached without finding intersection")
-            return None, None, calculation_points
+            return None, None, None, None, calculation_points
 
         # Calculate final attributes
         alt_min = current_altitude
@@ -405,14 +422,31 @@ class ProfileAnalyzer:
 
         if distance == 0:
             self.logger.warning("Zero distance found, cannot calculate slope")
-            return None, None, calculation_points
+            return None, None, None, None, calculation_points
 
         height_difference = alt_max - alt_min
-        slope_ouvrage = height_difference / distance
+        slope_ouvrage_total = height_difference / distance
 
-        self.logger.info(f"Final calculations: height_diff={height_difference:.2f}, slope={slope_ouvrage:.2f}")
+        # Slopes at the top and bottom of an ouvrage are not relaible, so we calculate the slope based on the middle section, if possible
+        slope_ouvrage_section = None
+        safety_margin = 2
+        if distance > (safety_margin * 2):
+            # Get points at dist_min and dist_max using interpolate
+            point_min = perpendicular_line.interpolate(dist_min)
+            point_max = perpendicular_line.interpolate(dist_max)
+            slope_ouvrage_section = self.calculate_slope(point_min, point_max)
+        
+        # Slopes of the middle section are more reliable
+        slope_ouvrage_middle = None
+        middle_margin = 1
+        if distance > (2 * middle_margin):
+            point_middle_min = perpendicular_line.interpolate(dist_min + (distance / 2) - middle_margin)
+            point_middle_max = perpendicular_line.interpolate(dist_min + (distance / 2) + middle_margin)
+            slope_ouvrage_middle = self.calculate_slope(point_middle_min, point_middle_max)
 
-        return slope_ouvrage, height_difference, calculation_points
+        self.logger.info(f"Final calculations: height_diff={height_difference:.2f}, slope={slope_ouvrage_total:.2f}")
+
+        return slope_ouvrage_total, slope_ouvrage_section, slope_ouvrage_middle, height_difference, calculation_points
 
     def classify_point(self, height_difference):
         """Classify point as zone de remblai, zone de deblai ou en profil rasant"""
@@ -430,6 +464,16 @@ class ProfileAnalyzer:
         """Determine the route width and other parameters based on the number of lanes"""
         ref_route_start = 57
         ref_route_end = 63
+        ref_terrain_start = 20
+        ref_terrain_end = 30
+        ref_minmax_start = 20
+        ref_minmax_end = 40
+        ref_slope_start = 50
+        ref_slope_end = 30
+        ref_terrain_start1 = 0
+        ref_terrain_end1 = 30
+        ref_terrain_start2 = 90
+        ref_terrain_end2 = 120
         if self.lines_selected.iloc[line_index]['nombre_de_voies'] == 2:
             ref_terrain_start = 20
             ref_terrain_end = 30
@@ -533,8 +577,8 @@ class ProfileAnalyzer:
 
                 perpendicular_line = self.calculate_perpendicular_line(current_distance, line)
                 average_height_route = self.calculate_average_height(perpendicular_line, ref_route_start, ref_route_end)
-                average_height_terrain = self.calculate_average_height(perpendicular_line, ref_terrain_start, ref_terrain_end)
-                max_height_terrain, min_height_terrain = self.calculate_minmax_height(perpendicular_line, ref_minmax_start, ref_minmax_end)
+                #average_height_terrain = self.calculate_average_height(perpendicular_line, ref_terrain_start, ref_terrain_end)
+                #max_height_terrain, min_height_terrain = self.calculate_minmax_height(perpendicular_line, ref_minmax_start, ref_minmax_end)
                 reg, coef = self.calculate_natural_slope(perpendicular_line, ref_terrain_start1, ref_terrain_end1, ref_terrain_start2, ref_terrain_end2)
                 interpolated_height_nat_terrain_route = self.calculate_interpolated_altitude(60, reg)
                 height_difference_nat_terrain = average_height_route - interpolated_height_nat_terrain_route
@@ -546,13 +590,14 @@ class ProfileAnalyzer:
 
                 # Initialize max_height_difference as None
                 max_height_difference = None
-                slope_ouvrage = None
+                slope_ouvrage_total = None
+                slope_ouvrage_section = None
                 calculation_points = None
 
                 if profile_type == "deblai":
-                    slope_ouvrage, max_height_difference, calculation_points = self.calculate_attributes_deblai(perpendicular_line, reg, coef)
+                    slope_ouvrage_total, slope_ouvrage_section, slope_ouvrage_middle, max_height_difference, calculation_points = self.calculate_attributes_deblai(perpendicular_line, reg, coef)
                 elif profile_type == "remblai":
-                    slope_ouvrage, max_height_difference, calculation_points = self.calculate_attributes_remblai(perpendicular_line, reg, coef)
+                    slope_ouvrage_total, slope_ouvrage_section, slope_ouvrage_middle, max_height_difference, calculation_points = self.calculate_attributes_remblai(perpendicular_line, reg, coef)
                 
                 if calculation_points:
                     all_calculation_points.extend(calculation_points)
@@ -570,12 +615,15 @@ class ProfileAnalyzer:
                     'largeur_route': self.lines_selected.iloc[i]['largeur_de_chaussee'],
                     'num_route': self.lines_selected.iloc[i]['cpx_numero'],
                     'max_height_difference': max_height_difference,
-                    'slope_ouvrage': slope_ouvrage
+                    'slope_ouvrage_total': slope_ouvrage_total,
+                    'slope_ouvrage_section': slope_ouvrage_section,
+                    'slope_ouvrage_middle': slope_ouvrage_middle
                 })
 
                 # Visualize the profile every 100 meters
-                if int(current_distance) % 100 == 0:
+                """if int(current_distance) % 100 == 0:
                     self.visualize_profile(i, perpendicular_line, reg, coef, current_distance, self.output_folder)
+                """
 
                 current_distance += 1
 
@@ -601,7 +649,7 @@ class ProfileAnalyzer:
         self.logger.info("\nAnalysis completed successfully")
         return points_gdf, calculation_points_gdf
 
-    def save_output(self, points_gdf, calculation_points_gdf=None):
+    def save_output(self, points_gdf, calculation_points_gdf):
         """Save the classified profiles and calculation points to a GeoPackage"""
         os.makedirs(self.output_folder, exist_ok=True)
         output_file = os.path.join(self.output_folder, "classified_profiles.gpkg")

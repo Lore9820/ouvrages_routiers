@@ -210,7 +210,7 @@ class SegmentConstructor:
                                         hauteurs.append(hauteur)
                                         hauteur_max = max(hauteur_max, hauteur)
 
-                                        pente = closest_row_j['slope_ouvrage']
+                                        pente = closest_row_j['slope_ouvrage_section']
                                         pentes.append(pente)
                                         pente_max = max(pente_max, pente)
 
