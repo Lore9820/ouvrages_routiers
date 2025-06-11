@@ -218,9 +218,9 @@ class ProfileAnalyzer:
 
         try:
             reg = LinearRegression().fit(dist_arr, alt_arr)
-            print(f"R² score: {reg.score(dist_arr, alt_arr)}")
-            print(f"Coefficients: {reg.coef_}")
-            print(f"Intercept: {reg.intercept_}")
+            self.logger.info(f"R² score: {reg.score(dist_arr, alt_arr)}")
+            self.logger.info(f"Coefficients: {reg.coef_}")
+            self.logger.info(f"Intercept: {reg.intercept_}")
             return reg, reg.coef_[0][0]
         except Exception as e:
             print(f"Error in linear regression: {e}")
@@ -464,6 +464,7 @@ class ProfileAnalyzer:
         """Determine the route width and other parameters based on the number of lanes"""
         ref_route_start = 57
         ref_route_end = 63
+        '''
         ref_terrain_start = 20
         ref_terrain_end = 30
         ref_minmax_start = 20
@@ -473,7 +474,7 @@ class ProfileAnalyzer:
         ref_terrain_start1 = 0
         ref_terrain_end1 = 30
         ref_terrain_start2 = 90
-        ref_terrain_end2 = 120
+        ref_terrain_end2 = 120'''
         if self.lines_selected.iloc[line_index]['nombre_de_voies'] == 2:
             ref_terrain_start = 20
             ref_terrain_end = 30
