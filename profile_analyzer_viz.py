@@ -40,6 +40,8 @@ class ProfileAnalyzer:
             datefmt='%Y-%m-%d %H:%M:%S'
         )
         self.logger = logging.getLogger(__name__)
+        
+        self.r2_scores = []  # Add this line to store R² scores
 
     def _read_dem(self):
         """Read the DEM file and return the elevation data and transform"""
@@ -218,9 +220,18 @@ class ProfileAnalyzer:
 
         try:
             reg = LinearRegression().fit(dist_arr, alt_arr)
-            self.logger.info(f"R² score: {reg.score(dist_arr, alt_arr)}")
-            self.logger.info(f"Coefficients: {reg.coef_}")
-            self.logger.info(f"Intercept: {reg.intercept_}")
+            r2_score = reg.score(dist_arr, alt_arr)
+            self.logger.info(f"R² score: {r2_score}")
+            
+            # Store R² score with distance information
+            current_distance = perpendicular_line.interpolate(0).distance(self.lines_selected.iloc[0].geometry)
+            self.r2_scores.append({
+                'distance': current_distance,
+                'r2_score': r2_score,
+                'coefficients': reg.coef_[0][0],
+                'intercept': reg.intercept_[0]
+            })
+            
             return reg, reg.coef_[0][0]
         except Exception as e:
             print(f"Error in linear regression: {e}")
@@ -318,10 +329,10 @@ class ProfileAnalyzer:
 
         # Slopes of the middle section are more reliable
         slope_ouvrage_middle = None
-        middle_margin = 1
-        if distance > (2 * middle_margin):
-            point_middle_min = perpendicular_line.interpolate(dist_min + (distance / 2) - middle_margin)
-            point_middle_max = perpendicular_line.interpolate(dist_min + (distance / 2) + middle_margin)
+        section_length = 2
+        if distance > section_length:
+            point_middle_min = perpendicular_line.interpolate(dist_min + (distance / 2) - (section_length / 2))
+            point_middle_max = perpendicular_line.interpolate(dist_min + (distance / 2) + (section_length / 2))
             slope_ouvrage_middle = self.calculate_slope(point_middle_min, point_middle_max)
 
         self.logger.info(f"\nFound significant slope change:")
@@ -651,11 +662,18 @@ class ProfileAnalyzer:
         return points_gdf, calculation_points_gdf
 
     def save_output(self, points_gdf, calculation_points_gdf):
-        """Save the classified profiles and calculation points to a GeoPackage"""
+        """Save the classified profiles, calculation points, and R² scores"""
         os.makedirs(self.output_folder, exist_ok=True)
-        output_file = os.path.join(self.output_folder, "classified_profiles.gpkg")
+        
+        # Save R² scores to CSV
+        r2_output_file = os.path.join(self.output_folder, f"r2_scores_{self.route_number}.csv")
+        import pandas as pd
+        r2_df = pd.DataFrame(self.r2_scores)
+        r2_df.to_csv(r2_output_file, index=False)
+        print(f"R² scores saved to: {r2_output_file}")
         
         # Save segments
+        output_file = os.path.join(self.output_folder, "classified_profiles.gpkg")
         points_gdf.to_file(output_file, driver='GPKG', layer='points')
         
         # Save calculation points if they exist

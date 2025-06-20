@@ -154,7 +154,7 @@ class SegmentConstructor:
                         length_line = line.length
                         print(f"Traitement de la ligne {index+1}.{line_idx+1} - Longueur: {length_line:.2f} m")
 
-                        line_buffer = line.buffer(1)  # Create 2-meter buffer around the line
+                        line_buffer = line.buffer(1)  # Create 1-meter buffer around the line
                         PR_current = self.PR_route[self.PR_route.geometry.intersects(line_buffer)]
                         print(f"Nombre de points de repère dans la ligne {index+1}.{line_idx+1}: {len(PR_current)}")
 
@@ -204,6 +204,8 @@ class SegmentConstructor:
                                         
                                         # Vérifier que le type de profil est le même pour continuer le segment
                                         if closest_row_j['classification'] != profile_type:
+                                            i += 1
+                                            pbar.update(1)
                                             break
 
                                         hauteur = closest_row_j['max_height_difference']
@@ -241,15 +243,13 @@ class SegmentConstructor:
                                             closest_point_on_line_PR_start = line.interpolate(line.project(PR_start.geometry))
                                             closest_point_on_line_PR_end = line.interpolate(line.project(PR_end.geometry))
 
-                                            abcisse_start = abs(line.project(closest_point_on_line_PR_start) - line.project(segment_startpoint))
-                                            abcisse_end = abs(line.project(closest_point_on_line_PR_end) - line.project(segment_endpoint))
+                                            abcisse_start = line.project(segment_startpoint) - line.project(closest_point_on_line_PR_start)
+                                            abcisse_end = line.project(segment_endpoint) - line.project(closest_point_on_line_PR_end)
 
                                             segment_name = f"{self.route_number}_PR{PR_start['numero']}-{int(round(abcisse_start, -1))}_{PR_start['cote']}"
                                             
                                             all_ouvrages.append({
                                                 'geometry': segment,
-                                                'startpoint': i,
-                                                'endpoint': j,
                                                 'length': j - i,
                                                 'classification': profile_type,
                                                 'hauteur_max': hauteur_max,
