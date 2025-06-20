@@ -198,7 +198,7 @@ def find_closest_PR(point, PR_route):
         print(f"Erreur lors de la recherche du PR de référence: {e}")
         return None
 
-def visualize_profile(perpendicular_line, segment, current_distance, output_folder, route_number, PR_start, meters_start, PR_end, meters_end, PR_route):
+def visualize_profile(perpendicular_line, segment, current_distance, output_folder, route_number, PR_route):
     """Visualize the profile at a specific distance."""
     # Create profiles subfolder
     profiles_folder = os.path.join(output_folder, "profiles")
@@ -279,7 +279,7 @@ def main():
     segment_start_meters = input("Spécifiez combien de mètres après le PR de début que vous voulez commencer (ex. 100): ")
     segment_end_PR = input("Saisissez le PR de fin (ex. 15): PR")
     segment_end_meters = input("Saisissez combien de mètres après le PR de fin que vous voulez arrêter (ex. 500): ")
-    espacement = input("Saisissez l'espacement entre les lignes perpendiculaires (par défaut 25): ")
+    espacement = input("Saisissez l'espacement entre les profiles (par défaut 25): ")
 
     output_folder = f"output_{route_number}"
 
@@ -287,6 +287,9 @@ def main():
     route = gpd.read_file(route_path)
 
     print(f"\nNombre de segments avant la connexion: {len(route)}")
+
+    filter_PR = f"route='{route_number}'"
+    PR_route = get_data(filter_PR, "BDTOPO_V3:point_de_repere")
     
     # Get connected segments and centerline
     centerline = connect_segments(route)
@@ -303,9 +306,6 @@ def main():
     output_centerline = os.path.join(output_folder, f"centerline_{route_number}.gpkg")
     route_buffered.to_file(output_centerline, driver="GPKG")
     print(f"\nCenterline has been saved to: {output_centerline}")
-
-    filter_PR = f"route='{route_number}'"
-    PR_route = get_data(filter_PR, "BDTOPO_V3:point_de_repere")
 
     # Get PR points and handle potential missing data
     PR_start_df = PR_route[PR_route['numero'] == segment_start_PR]
@@ -382,7 +382,7 @@ def main():
     segment_df.to_file(output_segment, driver="GPKG")
     print(f"\nSegment choisi sauvegardé dans: {output_segment}")
 
-    # Calculate perpendicular lines at intervals of 5 meters
+    # Calculate perpendicular lines at intervals of X meters
     print("\nCalcul des lignes perpendiculaires...")
     if espacement:
         espacement = int(espacement)
