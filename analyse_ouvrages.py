@@ -1,25 +1,82 @@
 import geopandas as gpd
-#import pypandoc
 import webbrowser
 import os
-#pypandoc.download_pandoc()
+
+# Demander le code de la route à l'utilisateur
+route = input("Saisir le code de la route (ex. A33): ")
 
 # Charger le fichier GeoPackage
-gdf = gpd.read_file("output_A33/selected_ouvrages.gpkg")
+input_file = f"output_{route}/selected_ouvrages.gpkg"
+gdf = gpd.read_file(input_file)
 
-# Statistiques sur la longueur
-length_max = gdf['length'].max()
-length_min = gdf['length'].min()
-length_mean = gdf['length'].mean()
-length_median = gdf['length'].median()
+# Split en remblai, deblai et rasant
+remblai = gdf[gdf['classification'] == 'remblai']
+deblai = gdf[gdf['classification'] == 'deblai']
+rasant = gdf[gdf['classification'] == 'rasant']
 
-# Statistiques sur hauteur_moyenne
-hauteur_moyenne_max = gdf['hauteur_moyenne'].max()
-hauteur_moyenne_min = gdf['hauteur_moyenne'].min()
-hauteur_moyenne_mean = gdf['hauteur_moyenne'].mean()
+# Statistiques générales tout
+total_ouvrage = round(len(gdf), 2)
+total_length = round(gdf['length'].sum(), 2)
 
-# Statistique sur hauteur_max
-hauteur_max_max = gdf['hauteur_max'].max()
+# Statistiques sur la longueur tout
+length_max = round(gdf['length'].max(), 2)
+length_min = round(gdf['length'].min(), 2)
+length_mean = round(gdf['length'].mean(), 2)
+length_median = round(gdf['length'].median(), 2)
+
+# Statistiques générales remblai
+total_ouvrage_remblai = round(len(remblai), 2)
+total_length_remblai = round(remblai['length'].sum(), 2)
+
+# Statistiques sur la longueur remblai
+length_max_remblai = round(remblai['length'].max(), 2)
+length_min_remblai = round(remblai['length'].min(), 2)
+length_mean_remblai = round(remblai['length'].mean(), 2)
+length_median_remblai = round(remblai['length'].median(), 2)
+
+# Statistiques sur hauteur_moyenne remblai
+hauteur_moyenne_max_remblai = round(remblai['hauteur_moyenne'].max(), 2)
+hauteur_moyenne_min_remblai = round(remblai['hauteur_moyenne'].min(), 2)
+hauteur_moyenne_mean_remblai = round(remblai['hauteur_moyenne'].mean(), 2)
+hauteur_moyenne_median_remblai = round(remblai['hauteur_moyenne'].median(), 2)
+
+# Statistique sur hauteur_max remblai
+hauteur_max_max_remblai = round(remblai['hauteur_max'].max(), 2)
+hauteur_max_min_remblai = round(remblai['hauteur_max'].min(), 2)
+hauteur_max_mean_remblai = round(remblai['hauteur_max'].mean(), 2)
+hauteur_max_median_remblai = round(remblai['hauteur_max'].median(), 2)
+
+# Statistiques générales deblai
+total_ouvrage_deblai = round(len(deblai), 2)
+total_length_deblai = round(deblai['length'].sum(), 2)
+
+# Statistiques sur la longueur deblai
+length_max_deblai = round(deblai['length'].max(), 2)
+length_min_deblai = round(deblai['length'].min(), 2)
+length_mean_deblai = round(deblai['length'].mean(), 2)
+length_median_deblai = round(deblai['length'].median(), 2)
+
+# Statistiques sur hauteur_moyenne deblai
+hauteur_moyenne_max_deblai = round(deblai['hauteur_moyenne'].max(), 2)
+hauteur_moyenne_min_deblai = round(deblai['hauteur_moyenne'].min(), 2)
+hauteur_moyenne_mean_deblai = round(deblai['hauteur_moyenne'].mean(), 2)
+hauteur_moyenne_median_deblai = round(deblai['hauteur_moyenne'].median(), 2)
+
+# Statistique sur hauteur_max deblai
+hauteur_max_max_deblai = round(deblai['hauteur_max'].max(), 2)
+hauteur_max_min_deblai = round(deblai['hauteur_max'].min(), 2)
+hauteur_max_mean_deblai = round(deblai['hauteur_max'].mean(), 2)
+hauteur_max_median_deblai = round(deblai['hauteur_max'].median(), 2)
+
+# Statistiques générales rasant
+total_ouvrage_rasant = round(len(rasant), 2)
+total_length_rasant = round(rasant['length'].sum(), 2)
+
+# Statistiques sur la longueur rasant
+length_max_rasant = round(rasant['length'].max(), 2)
+length_min_rasant = round(rasant['length'].min(), 2)
+length_mean_rasant = round(rasant['length'].mean(), 2)
+length_median_rasant = round(rasant['length'].median(), 2)
 
 # CSS
 css_content = """
@@ -76,7 +133,8 @@ hr {
 """
 
 # Write the CSS file
-with open("output_A33/statistiques_ouvrages.css", "w", encoding="utf-8") as f:
+output_folder_css = f"output_{route}/statistiques_ouvrages.css"
+with open(output_folder_css, "w", encoding="utf-8") as f:
     f.write(css_content)
 
 # HTML content with CSS link and container
@@ -84,35 +142,122 @@ report_html = f"""<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Analyse Statistique des Ouvrages Sélectionnés</title>
+    <title>Analyse statistique des ouvrages de la route {route}</title>
     <link rel="stylesheet" href="statistiques_ouvrages.css">
 </head>
 <body>
 <div class="container">
-<h1>Analyse Statistique des Ouvrages Sélectionnés</h1>
-<p>Ce document présente les statistiques descriptives calculées à partir du fichier <strong>output_A33/selected_ouvrages.gpkg</strong>.</p>
+<h1>Analyse statistique des ouvrages de la route {route}</h1>
+<p>Ce document présente les statistiques descriptives calculées à partir du fichier <strong>output_{route}/selected_ouvrages.gpkg</strong>.</p>
 
-<h2>1. Longueur des ouvrages (<code>length</code>)</h2>
+<h2>Statistiques globales</h2>
+<p>Le fichier contient des informations sur les ouvrages de la route, classés en trois catégories : <strong>remblai</strong>, <strong>déblai</strong> et <strong>rasant</strong>.</p>
+
+<h3>1. Statistiques générales</h3>
 <table>
 <tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{length_max}</td></tr>
-<tr><td><strong>Minimum</strong></td><td>{length_min}</td></tr>
-<tr><td><strong>Moyenne</strong></td><td>{length_mean}</td></tr>
-<tr><td><strong>Médiane</strong></td><td>{length_median}</td></tr>
+<tr><td><strong>Total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage}</td></tr>
+<tr><td><strong>Longueur totale des ouvrages (somme des deux directions)</strong></td><td>{total_length} m</td></tr>
 </table>
 
-<h2>2. Hauteur moyenne (<code>hauteur_moyenne</code>)</h2>
+<h3>2. Longueur des ouvrages (<code>length</code>)</h3>
 <table>
 <tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{hauteur_moyenne_max}</td></tr>
-<tr><td><strong>Minimum</strong></td><td>{hauteur_moyenne_min}</td></tr>
-<tr><td><strong>Moyenne</strong></td><td>{hauteur_moyenne_mean}</td></tr>
+<tr><td><strong>Maximum</strong></td><td>{length_max} m</td></tr>
+<tr><td><strong>Minimum</strong></td><td>{length_min} m</td></tr>
+<tr><td><strong>Moyenne</strong></td><td>{length_mean} m</td></tr>
+<tr><td><strong>Médiane</strong></td><td>{length_median} m</td></tr>
 </table>
 
-<h2>3. Hauteur maximale (<code>hauteur_max</code>)</h2>
+<h1>Analyse par type d'ouvrage</h1>
+<h2>Ouvrage de type <strong>remblai</strong></h2>
+
+<h3>1. Statistiques générales des ouvrages de remblai</h3>
 <table>
 <tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{hauteur_max_max}</td></tr>
+<tr><td><strong>Total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage_remblai}</td></tr>
+<tr><td><strong>Longueur totale des ouvrages (somme des deux directions)</strong></td><td>{total_length_remblai} m</td></tr>
+</table>
+
+<h3>2. Longueur des ouvrages de remblai (<code>length</code>)</h3>
+<table>
+<tr><th>Statistique</th><th>Valeur</th></tr>
+<tr><td><strong>Maximum</strong></td><td>{length_max_remblai} m</td></tr>
+<tr><td><strong>Minimum</strong></td><td>{length_min_remblai} m</td></tr>
+<tr><td><strong>Moyenne</strong></td><td>{length_mean_remblai} m</td></tr>
+<tr><td><strong>Médiane</strong></td><td>{length_median_remblai} m</td></tr>
+</table>
+
+<h3>3. Hauteur moyenne (remblai) (<code>hauteur_moyenne</code>)</h3>
+<table>
+<tr><th>Statistique</th><th>Valeur</th></tr>
+<tr><td><strong>Maximum</strong></td><td>{hauteur_moyenne_max_remblai} m</td></tr>
+<tr><td><strong>Minimum</strong></td><td>{hauteur_moyenne_min_remblai} m</td></tr>
+<tr><td><strong>Moyenne</strong></td><td>{hauteur_moyenne_mean_remblai} m</td></tr>
+<tr><td><strong>Médiane</strong></td><td>{hauteur_moyenne_median_remblai} m</td></tr>
+</table>
+
+<h3>4. Hauteur maximale (remblai) (<code>hauteur_max</code>)</h3>
+<table>
+<tr><th>Statistique</th><th>Valeur</th></tr>
+<tr><td><strong>Maximum</strong></td><td>{hauteur_max_max_remblai} m</td></tr>
+<tr><td><strong>Minimum</strong></td><td>{hauteur_max_min_remblai} m</td></tr>
+<tr><td><strong>Moyenne</strong></td><td>{hauteur_max_mean_remblai} m</td></tr>
+<tr><td><strong>Médiane</strong></td><td>{hauteur_max_median_remblai} m</td></tr>
+</table>
+
+<h2>Ouvrage de type <strong>déblai</strong></h2>
+
+<h3>1. Statistiques générales des ouvrages de déblai</h3>
+<table>
+<tr><th>Statistique</th><th>Valeur</th></tr>
+<tr><td><strong>Total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage_deblai}</td></tr>
+<tr><td><strong>Longueur totale des ouvrages (somme des deux directions)</strong></td><td>{total_length_deblai} m</td></tr>
+</table>
+
+<h3>2. Longueur des ouvrages de déblai (<code>length</code>)</h3>
+<table>
+<tr><th>Statistique</th><th>Valeur</th></tr>
+<tr><td><strong>Maximum</strong></td><td>{length_max_deblai} m</td></tr>
+<tr><td><strong>Minimum</strong></td><td>{length_min_deblai} m</td></tr>
+<tr><td><strong>Moyenne</strong></td><td>{length_mean_deblai} m</td></tr>
+<tr><td><strong>Médiane</strong></td><td>{length_median_deblai} m</td></tr>
+</table>
+
+<h3>3. Hauteur moyenne (déblai) (<code>hauteur_moyenne</code>)</h3>
+<table>
+<tr><th>Statistique</th><th>Valeur</th></tr>
+<tr><td><strong>Maximum</strong></td><td>{hauteur_moyenne_max_deblai} m</td></tr>
+<tr><td><strong>Minimum</strong></td><td>{hauteur_moyenne_min_deblai} m</td></tr>
+<tr><td><strong>Moyenne</strong></td><td>{hauteur_moyenne_mean_deblai} m</td></tr>
+<tr><td><strong>Médiane</strong></td><td>{hauteur_moyenne_median_deblai} m</td></tr>
+</table>
+
+<h3>4. Hauteur maximale (déblai) (<code>hauteur_max</code>)</h3>
+<table>
+<tr><th>Statistique</th><th>Valeur</th></tr>
+<tr><td><strong>Maximum</strong></td><td>{hauteur_max_max_deblai} m</td></tr>
+<tr><td><strong>Minimum</strong></td><td>{hauteur_max_min_deblai} m</td></tr>
+<tr><td><strong>Moyenne</strong></td><td>{hauteur_max_mean_deblai} m</td></tr>
+<tr><td><strong>Médiane</strong></td><td>{hauteur_max_median_deblai} m</td></tr>
+</table>
+
+<h2>Profils de type <strong>rasant</strong></h2>
+
+<h3>1. Statistiques générales des profils rasants</h3>
+<table>
+<tr><th>Statistique</th><th>Valeur</th></tr>
+<tr><td><strong>Total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage_rasant}</td></tr>
+<tr><td><strong>Longueur totale des ouvrages (somme des deux directions)</strong></td><td>{total_length_rasant} m</td></tr>
+</table>
+
+<h3>2. Longueur des ouvrages des profils rasants (<code>length</code>)</h3>
+<table>
+<tr><th>Statistique</th><th>Valeur</th></tr>
+<tr><td><strong>Maximum</strong></td><td>{length_max_rasant} m</td></tr>
+<tr><td><strong>Minimum</strong></td><td>{length_min_rasant} m</td></tr>
+<tr><td><strong>Moyenne</strong></td><td>{length_mean_rasant} m</td></tr>
+<tr><td><strong>Médiane</strong></td><td>{length_median_rasant} m</td></tr>
 </table>
 
 <hr>
@@ -125,11 +270,11 @@ report_html = f"""<!DOCTYPE html>
 </body>
 </html>
 """
-
-with open("output_A33/statistiques_ouvrages.html", "w", encoding="utf-8") as f:
+output_html = f"output_{route}/statistiques_ouvrages.html"
+with open(output_html, "w", encoding="utf-8") as f:
     f.write(report_html)
 
-import webbrowser, os
-html_path = os.path.abspath("output_A33/statistiques_ouvrages.html")
+# Open the HTML report in the default web browser
+html_path = os.path.abspath(output_html)
 webbrowser.open_new_tab(f"file:///{html_path}")
 
