@@ -56,7 +56,7 @@ class OuvragesSelector:
                 
             return gdf
 
-    def remove_overlapping_zones(self, linestring, zones_a_filtrer, buffer_distance=2):
+    def remove_overlapping_zones(self, linestring, zones_a_filtrer, buffer_distance=10):
         for element in zones_a_filtrer.geometry:
             if element.geom_type == 'MultiPolygon':
                 element = element.buffer(buffer_distance)
@@ -74,7 +74,8 @@ class OuvragesSelector:
 
     def select_ouvrages(self):
         # Filter the ouvrages with classification "remblai" or "deblai"
-        selected_ouvrages = self.ouvrages_gdf[self.ouvrages_gdf['classification'].isin(['remblai', 'deblai'])]
+        #selected_ouvrages = self.ouvrages_gdf[self.ouvrages_gdf['classification'].isin(['remblai', 'deblai'])]
+        selected_ouvrages = self.ouvrages_gdf
 
         # Remove all zones that overlap with bridges
         selected_ouvrages.loc[:,'geometry'] = selected_ouvrages['geometry'].apply(lambda x: self.remove_overlapping_zones(x, self.ponts_gdf))
@@ -84,13 +85,15 @@ class OuvragesSelector:
         # Create separate GeoDataFrames for remblai and deblai
         remblai = selected_ouvrages[selected_ouvrages['classification'] == 'remblai']
         deblai = selected_ouvrages[selected_ouvrages['classification'] == 'deblai']
+        rasant = selected_ouvrages[selected_ouvrages['classification'] == 'rasant']
         
         # Merge close segments for each classification
         merged_remblai = self.merge_close_segments(remblai)
         merged_deblai = self.merge_close_segments(deblai)
+        merged_rasant = self.merge_close_segments(rasant)
         
         # Combine results
-        merged_ouvrages = pd.concat([merged_remblai, merged_deblai])
+        merged_ouvrages = pd.concat([merged_remblai, merged_deblai, merged_rasant])
         
         # Filter by length
         selected_ouvrages = merged_ouvrages[merged_ouvrages.geometry.length > 20]
