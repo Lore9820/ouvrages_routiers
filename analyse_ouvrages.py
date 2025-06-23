@@ -1,10 +1,8 @@
 import geopandas as gpd
-import pypandoc
-import markdown
-import pdfkit
+#import pypandoc
 import webbrowser
 import os
-pypandoc.download_pandoc()
+#pypandoc.download_pandoc()
 
 # Charger le fichier GeoPackage
 gdf = gpd.read_file("output_A33/selected_ouvrages.gpkg")
@@ -23,69 +21,79 @@ hauteur_moyenne_mean = gdf['hauteur_moyenne'].mean()
 # Statistique sur hauteur_max
 hauteur_max_max = gdf['hauteur_max'].max()
 
-# Affichage des résultats
-report_md = f"""# Analyse Statistique des Ouvrages Sélectionnés
-
-Ce document présente les statistiques descriptives calculées à partir du fichier **output_A33/selected_ouvrages.gpkg**.
-
-## 1. Longueur des ouvrages (`length`)
-
-| Statistique | Valeur        |
-|-------------|--------------|
-| **Maximum** | {length_max}  |
-| **Minimum** | {length_min}  |
-| **Moyenne** | {length_mean} |
-| **Médiane** | {length_median} |
-
-## 2. Hauteur moyenne (`hauteur_moyenne`)
-
-| Statistique | Valeur                |
-|-------------|----------------------|
-| **Maximum** | {hauteur_moyenne_max} |
-| **Minimum** | {hauteur_moyenne_min} |
-| **Moyenne** | {hauteur_moyenne_mean} |
-
-## 3. Hauteur maximale (`hauteur_max`)
-
-| Statistique | Valeur            |
-|-------------|------------------|
-| **Maximum** | {hauteur_max_max} |
-
----
-
-**Remarques :**
-- Les valeurs sont extraites automatiquement du fichier GeoPackage.
-- Pour obtenir les valeurs numériques, exécutez le script Python `analyse_ouvrages.py`.
+# CSS
+css_content = """
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f7f7f9;
+    color: #222;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 32px 40px 40px 40px;
+}
+h1, h2 {
+    color: #2c3e50;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 32px;
+    background: #fafbfc;
+}
+th, td {
+    border: 1px solid #d1d5db;
+    padding: 10px 16px;
+    text-align: left;
+}
+th {
+    background: #e5e7eb;
+    color: #222;
+}
+tr:nth-child(even) td {
+    background: #f3f4f6;
+}
+hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 32px 0;
+}
+.remark {
+    font-size: 0.95em;
+    color: #555;
+    background: #f9fafb;
+    border-left: 4px solid #4f8ef7;
+    padding: 12px 18px;
+    margin-top: 24px;
+    border-radius: 4px;
+}
 """
 
-with open("output_A33/statistiques_ouvrages.md", "w", encoding="utf-8") as f:
-    f.write(report_md)
+# Write the CSS file
+with open("output_A33/statistiques_ouvrages.css", "w", encoding="utf-8") as f:
+    f.write(css_content)
 
-md_path = "output_A33/statistiques_ouvrages.md"
-pdf_path = "output_A33/statistiques_ouvrages.pdf"
-
-# Convert markdown to PDF
-with open("output_A33/statistiques_ouvrages.md", encoding="utf-8") as f:
-    html = markdown.markdown(f.read())
-
-with open("output_A33/statistiques_ouvrages.html", "w", encoding="utf-8") as f:
-    f.write(html)
-
-html_path = os.path.abspath("output_A33/statistiques_ouvrages.html")
-webbrowser.open_new_tab(f"file:///{html_path}")
-
+# HTML content with CSS link and container
 report_html = f"""<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Analyse Statistique des Ouvrages Sélectionnés</title>
+    <link rel="stylesheet" href="statistiques_ouvrages.css">
 </head>
 <body>
+<div class="container">
 <h1>Analyse Statistique des Ouvrages Sélectionnés</h1>
 <p>Ce document présente les statistiques descriptives calculées à partir du fichier <strong>output_A33/selected_ouvrages.gpkg</strong>.</p>
 
 <h2>1. Longueur des ouvrages (<code>length</code>)</h2>
-<table border="1" cellpadding="4" cellspacing="0">
+<table>
 <tr><th>Statistique</th><th>Valeur</th></tr>
 <tr><td><strong>Maximum</strong></td><td>{length_max}</td></tr>
 <tr><td><strong>Minimum</strong></td><td>{length_min}</td></tr>
@@ -94,7 +102,7 @@ report_html = f"""<!DOCTYPE html>
 </table>
 
 <h2>2. Hauteur moyenne (<code>hauteur_moyenne</code>)</h2>
-<table border="1" cellpadding="4" cellspacing="0">
+<table>
 <tr><th>Statistique</th><th>Valeur</th></tr>
 <tr><td><strong>Maximum</strong></td><td>{hauteur_moyenne_max}</td></tr>
 <tr><td><strong>Minimum</strong></td><td>{hauteur_moyenne_min}</td></tr>
@@ -102,16 +110,18 @@ report_html = f"""<!DOCTYPE html>
 </table>
 
 <h2>3. Hauteur maximale (<code>hauteur_max</code>)</h2>
-<table border="1" cellpadding="4" cellspacing="0">
+<table>
 <tr><th>Statistique</th><th>Valeur</th></tr>
 <tr><td><strong>Maximum</strong></td><td>{hauteur_max_max}</td></tr>
 </table>
 
 <hr>
-<p><strong>Remarques :</strong><br>
+<div class="remark">
+<strong>Remarques :</strong><br>
 - Les valeurs sont extraites automatiquement du fichier GeoPackage.<br>
 - Pour obtenir les valeurs numériques, exécutez le script Python <code>analyse_ouvrages.py</code>.
-</p>
+</div>
+</div>
 </body>
 </html>
 """
