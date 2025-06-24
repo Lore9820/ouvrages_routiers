@@ -46,6 +46,18 @@ hauteur_max_min_remblai = round(remblai['hauteur_max'].min(), 2)
 hauteur_max_mean_remblai = round(remblai['hauteur_max'].mean(), 2)
 hauteur_max_median_remblai = round(remblai['hauteur_max'].median(), 2)
 
+# Statistiques sur pente_moyenne remblai
+pente_moyenne_max_remblai = round(remblai['pente_moyenne'].max(), 2)
+pente_moyenne_min_remblai = round(remblai['pente_moyenne'].min(), 2)
+pente_moyenne_mean_remblai = round(remblai['pente_moyenne'].mean(), 2)
+pente_moyenne_median_remblai = round(remblai['pente_moyenne'].median(), 2)
+
+# Statistique sur pente_max remblai
+pente_max_max_remblai = round(remblai['pente_max'].max(), 2)
+pente_max_min_remblai = round(remblai['pente_max'].min(), 2)
+pente_max_mean_remblai = round(remblai['pente_max'].mean(), 2)
+pente_max_median_remblai = round(remblai['pente_max'].median(), 2)
+
 # Statistiques générales deblai
 total_ouvrage_deblai = round(len(deblai), 2)
 total_length_deblai = round(deblai['length'].sum(), 2)
@@ -67,6 +79,18 @@ hauteur_max_max_deblai = round(deblai['hauteur_max'].max(), 2)
 hauteur_max_min_deblai = round(deblai['hauteur_max'].min(), 2)
 hauteur_max_mean_deblai = round(deblai['hauteur_max'].mean(), 2)
 hauteur_max_median_deblai = round(deblai['hauteur_max'].median(), 2)
+
+# Statistiques sur pente_moyenne deblai
+pente_moyenne_max_deblai = round(deblai['pente_moyenne'].max(), 2)
+pente_moyenne_min_deblai = round(deblai['pente_moyenne'].min(), 2)
+pente_moyenne_mean_deblai = round(deblai['pente_moyenne'].mean(), 2)
+pente_moyenne_median_deblai = round(deblai['pente_moyenne'].median(), 2)
+
+# Statistique sur pente_max deblai
+pente_max_max_deblai = round(deblai['pente_max'].max(), 2)
+pente_max_min_deblai = round(deblai['pente_max'].min(), 2)
+pente_max_mean_deblai = round(deblai['pente_max'].mean(), 2)
+pente_max_median_deblai = round(deblai['pente_max'].median(), 2)
 
 # Statistiques générales rasant
 total_ouvrage_rasant = round(len(rasant), 2)
@@ -156,7 +180,7 @@ report_html = f"""<!DOCTYPE html>
 <h3>1. Statistiques générales</h3>
 <table>
 <tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage}</td></tr>
+<tr><td><strong>Nombre total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage}</td></tr>
 <tr><td><strong>Longueur totale des ouvrages (somme des deux directions)</strong></td><td>{total_length} m</td></tr>
 </table>
 
@@ -175,7 +199,7 @@ report_html = f"""<!DOCTYPE html>
 <h3>1. Statistiques générales des ouvrages de remblai</h3>
 <table>
 <tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage_remblai}</td></tr>
+<tr><td><strong>Nombre total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage_remblai}</td></tr>
 <tr><td><strong>Longueur totale des ouvrages (somme des deux directions)</strong></td><td>{total_length_remblai} m</td></tr>
 </table>
 
@@ -206,12 +230,30 @@ report_html = f"""<!DOCTYPE html>
 <tr><td><strong>Médiane</strong></td><td>{hauteur_max_median_remblai} m</td></tr>
 </table>
 
+<h3>5. pente moyenne (remblai) (<code>pente_moyenne</code>)</h3>
+<table>
+<tr><th>Statistique</th><th>Valeur</th></tr>
+<tr><td><strong>Maximum</strong></td><td>{pente_moyenne_max_remblai}</td></tr>
+<tr><td><strong>Minimum</strong></td><td>{pente_moyenne_min_remblai}</td></tr>
+<tr><td><strong>Moyenne</strong></td><td>{pente_moyenne_mean_remblai}</td></tr>
+<tr><td><strong>Médiane</strong></td><td>{pente_moyenne_median_remblai}</td></tr>
+</table>
+
+<h3>6. pente maximale (remblai) (<code>pente_max</code>)</h3>
+<table>
+<tr><th>Statistique</th><th>Valeur</th></tr>
+<tr><td><strong>Maximum</strong></td><td>{pente_max_max_remblai}</td></tr>
+<tr><td><strong>Minimum</strong></td><td>{pente_max_min_remblai}</td></tr>
+<tr><td><strong>Moyenne</strong></td><td>{pente_max_mean_remblai}</td></tr>
+<tr><td><strong>Médiane</strong></td><td>{pente_max_median_remblai}</td></tr>
+</table>
+
 <h2>Ouvrage de type <strong>déblai</strong></h2>
 
 <h3>1. Statistiques générales des ouvrages de déblai</h3>
 <table>
 <tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage_deblai}</td></tr>
+<tr><td><strong>Nombre total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage_deblai}</td></tr>
 <tr><td><strong>Longueur totale des ouvrages (somme des deux directions)</strong></td><td>{total_length_deblai} m</td></tr>
 </table>
 
@@ -242,12 +284,30 @@ report_html = f"""<!DOCTYPE html>
 <tr><td><strong>Médiane</strong></td><td>{hauteur_max_median_deblai} m</td></tr>
 </table>
 
+<h3>5. pente moyenne (déblai) (<code>pente_moyenne</code>)</h3>
+<table>
+<tr><th>Statistique</th><th>Valeur</th></tr>
+<tr><td><strong>Maximum</strong></td><td>{pente_moyenne_max_deblai}</td></tr>
+<tr><td><strong>Minimum</strong></td><td>{pente_moyenne_min_deblai}</td></tr>
+<tr><td><strong>Moyenne</strong></td><td>{pente_moyenne_mean_deblai}</td></tr>
+<tr><td><strong>Médiane</strong></td><td>{pente_moyenne_median_deblai}</td></tr>
+</table>
+
+<h3>6. pente maximale (déblai) (<code>pente_max</code>)</h3>
+<table>
+<tr><th>Statistique</th><th>Valeur</th></tr>
+<tr><td><strong>Maximum</strong></td><td>{pente_max_max_deblai}</td></tr>
+<tr><td><strong>Minimum</strong></td><td>{pente_max_min_deblai}</td></tr>
+<tr><td><strong>Moyenne</strong></td><td>{pente_max_mean_deblai}</td></tr>
+<tr><td><strong>Médiane</strong></td><td>{pente_max_median_deblai}</td></tr>
+</table>
+
 <h2>Profils de type <strong>rasant</strong></h2>
 
 <h3>1. Statistiques générales des profils rasants</h3>
 <table>
 <tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage_rasant}</td></tr>
+<tr><td><strong>Nombre total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage_rasant}</td></tr>
 <tr><td><strong>Longueur totale des ouvrages (somme des deux directions)</strong></td><td>{total_length_rasant} m</td></tr>
 </table>
 
