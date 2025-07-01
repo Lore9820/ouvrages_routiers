@@ -435,8 +435,16 @@ class ProfileAnalyzer:
             self.logger.warning("Zero distance found, cannot calculate slope")
             return None, None, None, None, calculation_points
 
-        height_difference = alt_max - alt_min
-        slope_ouvrage_total = height_difference / distance
+        height_difference = None
+        if alt_max is not None and alt_min is not None:
+            height_difference = alt_max - alt_min
+
+        if height_difference > 50:
+            height_difference = None
+        
+        slope_ouvrage_total = None
+        if height_difference is not None and distance is not None:
+            slope_ouvrage_total = height_difference / distance
 
         # Slopes at the top and bottom of an ouvrage are not relaible, so we calculate the slope based on the middle section, if possible
         slope_ouvrage_section = None
@@ -455,7 +463,8 @@ class ProfileAnalyzer:
             point_middle_max = perpendicular_line.interpolate(dist_min + (distance / 2) + middle_margin)
             slope_ouvrage_middle = self.calculate_slope(point_middle_min, point_middle_max)
 
-        self.logger.info(f"Final calculations: height_diff={height_difference:.2f}, slope={slope_ouvrage_total:.2f}")
+        if height_difference is not None and slope_ouvrage_total is not None:
+            self.logger.info(f"Final calculations: height_diff={height_difference:.2f}, slope={slope_ouvrage_total:.2f}")
 
         return slope_ouvrage_total, slope_ouvrage_section, slope_ouvrage_middle, height_difference, calculation_points
 

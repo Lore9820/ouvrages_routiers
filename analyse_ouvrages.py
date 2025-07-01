@@ -1,6 +1,7 @@
 import geopandas as gpd
 import webbrowser
 import os
+import matplotlib.pyplot as plt
 
 # Demander le code de la route à l'utilisateur
 route = input("Saisir le code de la route (ex. A33): ")
@@ -101,6 +102,49 @@ length_max_rasant = round(rasant['length'].max(), 2)
 length_min_rasant = round(rasant['length'].min(), 2)
 length_mean_rasant = round(rasant['length'].mean(), 2)
 length_median_rasant = round(rasant['length'].median(), 2)
+
+# Créer des boxplots pour visualiser les distributions des hauteurs moyennes
+data_haut_moy = [
+    gdf['hauteur_moyenne'].dropna(),
+    remblai['hauteur_moyenne'].dropna(),
+    deblai['hauteur_moyenne'].dropna()
+]
+labels = [
+    "Tous les segments",
+    "Remblai",
+    "Déblai"
+]
+
+plt.figure(figsize=(8, 6))
+plt.boxplot(data_haut_moy, labels=labels, patch_artist=True,
+            boxprops=dict(facecolor='#4f8ef7', color='#2c3e50'),
+            medianprops=dict(color='#e67e22', linewidth=2))
+plt.ylabel("Hauteur moyenne (m)")
+plt.title("Distribution de la hauteur moyenne par type d'ouvrage")
+plt.grid(axis='y', linestyle=':', alpha=0.5)
+plt.tight_layout()
+boxplot_path = f"output_{route}/boxplot_hauteur_moyenne.png"
+plt.savefig(boxplot_path)
+plt.close()
+
+# Créer des boxplots pour visualiser les distributions des hauteurs maximales
+data_haut_max = [
+    gdf['hauteur_max'].dropna(),
+    remblai['hauteur_max'].dropna(),
+    deblai['hauteur_max'].dropna()
+]
+
+plt.figure(figsize=(8, 6))
+plt.boxplot(data_haut_max, labels=labels, patch_artist=True,
+            boxprops=dict(facecolor='#4f8ef7', color='#2c3e50'),
+            medianprops=dict(color='#e67e22', linewidth=2))
+plt.ylabel("Hauteur maximales (m)")
+plt.title("Distribution de la hauteur maximale par type d'ouvrage")
+plt.grid(axis='y', linestyle=':', alpha=0.5)
+plt.tight_layout()
+boxplot_path = f"output_{route}/boxplot_hauteur_maximale.png"
+plt.savefig(boxplot_path)
+plt.close()
 
 # CSS
 css_content = """
@@ -320,6 +364,12 @@ report_html = f"""<!DOCTYPE html>
 <tr><td><strong>Médiane</strong></td><td>{length_median_rasant} m</td></tr>
 </table>
 
+<h2>Distribution de la hauteur moyenne</h2>
+<img src="boxplot_hauteur_moyenne.png" alt="Boxplot hauteur moyenne" style="max-width:100%;margin-bottom:32px;">
+
+<h2>Distribution de la hauteur maximale</h2>
+<img src="boxplot_hauteur_maximale.png" alt="Boxplot hauteur maximale" style="max-width:100%;margin-bottom:32px;">
+
 <hr>
 <div class="remark">
 <strong>Remarques :</strong><br>
@@ -337,4 +387,6 @@ with open(output_html, "w", encoding="utf-8") as f:
 # Open the HTML report in the default web browser
 html_path = os.path.abspath(output_html)
 webbrowser.open_new_tab(f"file:///{html_path}")
+
+
 
