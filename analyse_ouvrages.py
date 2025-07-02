@@ -103,6 +103,46 @@ length_min_rasant = round(rasant['length'].min(), 2)
 length_mean_rasant = round(rasant['length'].mean(), 2)
 length_median_rasant = round(rasant['length'].median(), 2)
 
+# nombre d'ouvrages en remblai avec une hauteur moyenne de plus de 10m, 5-10m ou moins de 5m
+remblai_10m = remblai[remblai['hauteur_moyenne'] >= 10].shape[0]
+remblai_5_10m = remblai[remblai['hauteur_moyenne'].between(5, 10)].shape[0]
+remblai_5m = remblai[remblai['hauteur_moyenne'] < 5].shape[0]
+
+# nombre d'ouvrages en déblai avec une hauteur moyenne de plus de 10m, 5-10m ou moins de 5m
+deblai_10m = deblai[deblai['hauteur_moyenne'] >= 10].shape[0]
+deblai_5_10m = deblai[deblai['hauteur_moyenne'].between(5, 10)].shape[0]
+deblai_5m = deblai[deblai['hauteur_moyenne'] < 5].shape[0]
+
+# nombre d'ouvrages en remblai avec une hauteur maximale de plus de 10m, 5-10m ou moins de 5m
+remblai_10m_max = remblai[remblai['hauteur_max'] >= 10].shape[0]
+remblai_5_10m_max = remblai[remblai['hauteur_max'].between(5, 10)].shape[0]
+remblai_5m_max = remblai[remblai['hauteur_max'] < 5].shape[0]
+
+# nombre d'ouvrages en déblai avec une hauteur maximale de plus de 10m, 5-10m ou moins de 5m
+deblai_10m_max = deblai[deblai['hauteur_max'] >= 10].shape[0]
+deblai_5_10m_max = deblai[deblai['hauteur_max'].between(5, 10)].shape[0]
+deblai_5m_max = deblai[deblai['hauteur_max'] < 5].shape[0]
+
+# nombre d'ouvrages en remblai avec des pentes moyennes de plus de 60%, 30-60% ou moins de 30%
+remblai_60 = remblai[remblai['pente_moyenne'] >= 0.6].shape[0]
+remblai_30_60 = remblai[remblai['pente_moyenne'].between(0.3, 0.6)].shape[0]
+remblai_30 = remblai[remblai['pente_moyenne'] < 0.3].shape[0]
+
+# nombre d'ouvrages en déblai avec des pentes moyennes de plus de 60%, 30-60% ou moins de 30%
+deblai_60 = deblai[deblai['pente_moyenne'] >= 0.6].shape[0]
+deblai_30_60 = deblai[deblai['pente_moyenne'].between(0.3, 0.6)].shape[0]
+deblai_30 = deblai[deblai['pente_moyenne'] < 0.3].shape[0]
+
+# nombre d'ouvrages en remblai avec des pentes maximale de plus de 60%, 30-60% ou moins de 30%
+remblai_60_max = remblai[remblai['pente_max'] >= 0.6].shape[0]
+remblai_30_60_max = remblai[remblai['pente_max'].between(0.3, 0.6)].shape[0]
+remblai_30_max = remblai[remblai['pente_max'] < 0.3].shape[0]
+
+# nombre d'ouvrages en déblai avec des pentes maximale de plus de 60%, 30-60% ou moins de 30%
+deblai_60_max = deblai[deblai['pente_max'] >= 0.6].shape[0]
+deblai_30_60_max = deblai[deblai['pente_max'].between(0.3, 0.6)].shape[0]
+deblai_30_max = deblai[deblai['pente_max'] < 0.3].shape[0]
+
 # Créer des boxplots pour visualiser les distributions des hauteurs moyennes
 data_haut_moy = [
     gdf['hauteur_moyenne'].dropna(),
@@ -110,7 +150,7 @@ data_haut_moy = [
     deblai['hauteur_moyenne'].dropna()
 ]
 labels = [
-    "Tous les segments",
+    "Remblai & déblai",
     "Remblai",
     "Déblai"
 ]
@@ -146,6 +186,44 @@ boxplot_path = f"output_{route}/boxplot_hauteur_maximale.png"
 plt.savefig(boxplot_path)
 plt.close()
 
+# Créer des boxplots pour visualiser les distributions des pentes moyennes
+data_pente_moy = [
+    gdf['pente_moyenne'].dropna(),
+    remblai['pente_moyenne'].dropna(),
+    deblai['pente_moyenne'].dropna()
+]
+
+plt.figure(figsize=(8, 6))
+plt.boxplot(data_pente_moy, labels=labels, patch_artist=True,
+            boxprops=dict(facecolor='#4f8ef7', color='#2c3e50'),
+            medianprops=dict(color='#e67e22', linewidth=2))
+plt.ylabel("Pente moyenne")
+plt.title("Distribution de la pente moyenne par type d'ouvrage")
+plt.grid(axis='y', linestyle=':', alpha=0.5)
+plt.tight_layout()
+boxplot_path = f"output_{route}/boxplot_pente_moyenne.png"
+plt.savefig(boxplot_path)
+plt.close()
+
+# Créer des boxplots pour visualiser les distributions des pentes maximales
+data_pente_max = [
+    gdf['pente_max'].dropna(),
+    remblai['pente_max'].dropna(),
+    deblai['pente_max'].dropna()
+]
+
+plt.figure(figsize=(8, 6))
+plt.boxplot(data_pente_max, labels=labels, patch_artist=True,
+            boxprops=dict(facecolor='#4f8ef7', color='#2c3e50'),
+            medianprops=dict(color='#e67e22', linewidth=2))
+plt.ylabel("Pente maximales")
+plt.title("Distribution de la pente maximale par type d'ouvrage")
+plt.grid(axis='y', linestyle=':', alpha=0.5)
+plt.tight_layout()
+boxplot_path = f"output_{route}/boxplot_pente_maximale.png"
+plt.savefig(boxplot_path)
+plt.close()
+
 # CSS
 css_content = """
 body {
@@ -163,8 +241,11 @@ body {
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     padding: 32px 40px 40px 40px;
 }
-h1, h2 {
+h1, h2, h3 {
     color: #2c3e50;
+}
+h2, h3 {
+    padding-top: 20px;
 }
 table {
     border-collapse: collapse;
@@ -216,164 +297,119 @@ report_html = f"""<!DOCTYPE html>
 <body>
 <div class="container">
 <h1>Analyse statistique des ouvrages de la route {route}</h1>
-<p>Ce document présente les statistiques descriptives calculées à partir du fichier <strong>output_{route}/selected_ouvrages.gpkg</strong>.</p>
+<p>Ce document présente les statistiques descriptives calculées à partir du fichier <strong>output_{route}/selected_ouvrages.gpkg</strong>.
+Le rapport est généré automatiquement à partir d'un fichier GeoPackage ; il contient donc uniquement des statistiques descriptives, sans interprétation.</p>
 
 <h2>Statistiques globales</h2>
-<p>Le fichier contient des informations sur les ouvrages de la route, classés en trois catégories : <strong>remblai</strong>, <strong>déblai</strong> et <strong>rasant</strong>.</p>
+<p>Le fichier contient des informations sur les ouvrages de la route, classés en trois catégories : <strong>remblai</strong>, <strong>déblai</strong> et <strong>rasant</strong>. En total,
+il y a <strong>{total_ouvrage} segments</strong>, dont <strong>{total_ouvrage_remblai} de type remblai</strong>, <strong>{total_ouvrage_deblai} de type déblai</strong> 
+et <strong>{total_ouvrage_rasant} de type rasant</strong>. On commence par les statistiques globales, prenant en compte l'ensemble des ouvrages.</p>
 
-<h3>1. Statistiques générales</h3>
+<h3>1. Longueur</h3>
+<p>La longueur totale des segments est de <strong>{total_length} m</strong>, partitionnée sur les deux directions de la route.</p>
 <table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Nombre total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage}</td></tr>
-<tr><td><strong>Longueur totale des ouvrages (somme des deux directions)</strong></td><td>{total_length} m</td></tr>
+<tr><th>Type d'ouvrage</th><th>Nombre</th><th>Longueur</th></tr>
+<tr><td>Remblai</td><td>{total_ouvrage_remblai}</td><td>{total_length_remblai} m</td></tr>
+<tr><td>Déblai</td><td>{total_ouvrage_deblai}</td><td>{total_length_deblai} m</td></tr>
+<tr><td>Rasant</td><td>{total_ouvrage_rasant}</td><td>{total_length_rasant} m</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>{total_ouvrage}</strong></td><td><strong>{total_length} m</strong></td></tr>
 </table>
+<p>Un segment de type remblai a une longueur moyenne de <strong>{length_mean_remblai} m</strong>, un segment de type déblai de <strong>{length_mean_deblai} m</strong> et un segment
+de type rasant de <strong>{length_mean_rasant} m</strong>.</p>
 
-<h3>2. Longueur des ouvrages (<code>length</code>)</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{length_max} m</td></tr>
-<tr><td><strong>Minimum</strong></td><td>{length_min} m</td></tr>
-<tr><td><strong>Moyenne</strong></td><td>{length_mean} m</td></tr>
-<tr><td><strong>Médiane</strong></td><td>{length_median} m</td></tr>
-</table>
+<h2>La hauteur</h2>
+<p>Les hauteurs sont calculées pour les segments de type remblai et déblai, mais pas pour les segments de type rasant. On distingue la hauteur moyenne et la hauteur maximale.</p>
 
-<h1>Analyse par type d'ouvrage</h1>
-<h2>Ouvrage de type <strong>remblai</strong></h2>
-
-<h3>1. Statistiques générales des ouvrages de remblai</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Nombre total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage_remblai}</td></tr>
-<tr><td><strong>Longueur totale des ouvrages (somme des deux directions)</strong></td><td>{total_length_remblai} m</td></tr>
-</table>
-
-<h3>2. Longueur des ouvrages de remblai (<code>length</code>)</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{length_max_remblai} m</td></tr>
-<tr><td><strong>Minimum</strong></td><td>{length_min_remblai} m</td></tr>
-<tr><td><strong>Moyenne</strong></td><td>{length_mean_remblai} m</td></tr>
-<tr><td><strong>Médiane</strong></td><td>{length_median_remblai} m</td></tr>
-</table>
-
-<h3>3. Hauteur moyenne (remblai) (<code>hauteur_moyenne</code>)</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{hauteur_moyenne_max_remblai} m</td></tr>
-<tr><td><strong>Minimum</strong></td><td>{hauteur_moyenne_min_remblai} m</td></tr>
-<tr><td><strong>Moyenne</strong></td><td>{hauteur_moyenne_mean_remblai} m</td></tr>
-<tr><td><strong>Médiane</strong></td><td>{hauteur_moyenne_median_remblai} m</td></tr>
-</table>
-
-<h3>4. Hauteur maximale (remblai) (<code>hauteur_max</code>)</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{hauteur_max_max_remblai} m</td></tr>
-<tr><td><strong>Minimum</strong></td><td>{hauteur_max_min_remblai} m</td></tr>
-<tr><td><strong>Moyenne</strong></td><td>{hauteur_max_mean_remblai} m</td></tr>
-<tr><td><strong>Médiane</strong></td><td>{hauteur_max_median_remblai} m</td></tr>
-</table>
-
-<h3>5. pente moyenne (remblai) (<code>pente_moyenne</code>)</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{pente_moyenne_max_remblai}</td></tr>
-<tr><td><strong>Minimum</strong></td><td>{pente_moyenne_min_remblai}</td></tr>
-<tr><td><strong>Moyenne</strong></td><td>{pente_moyenne_mean_remblai}</td></tr>
-<tr><td><strong>Médiane</strong></td><td>{pente_moyenne_median_remblai}</td></tr>
-</table>
-
-<h3>6. pente maximale (remblai) (<code>pente_max</code>)</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{pente_max_max_remblai}</td></tr>
-<tr><td><strong>Minimum</strong></td><td>{pente_max_min_remblai}</td></tr>
-<tr><td><strong>Moyenne</strong></td><td>{pente_max_mean_remblai}</td></tr>
-<tr><td><strong>Médiane</strong></td><td>{pente_max_median_remblai}</td></tr>
-</table>
-
-<h2>Ouvrage de type <strong>déblai</strong></h2>
-
-<h3>1. Statistiques générales des ouvrages de déblai</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Nombre total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage_deblai}</td></tr>
-<tr><td><strong>Longueur totale des ouvrages (somme des deux directions)</strong></td><td>{total_length_deblai} m</td></tr>
-</table>
-
-<h3>2. Longueur des ouvrages de déblai (<code>length</code>)</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{length_max_deblai} m</td></tr>
-<tr><td><strong>Minimum</strong></td><td>{length_min_deblai} m</td></tr>
-<tr><td><strong>Moyenne</strong></td><td>{length_mean_deblai} m</td></tr>
-<tr><td><strong>Médiane</strong></td><td>{length_median_deblai} m</td></tr>
-</table>
-
-<h3>3. Hauteur moyenne (déblai) (<code>hauteur_moyenne</code>)</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{hauteur_moyenne_max_deblai} m</td></tr>
-<tr><td><strong>Minimum</strong></td><td>{hauteur_moyenne_min_deblai} m</td></tr>
-<tr><td><strong>Moyenne</strong></td><td>{hauteur_moyenne_mean_deblai} m</td></tr>
-<tr><td><strong>Médiane</strong></td><td>{hauteur_moyenne_median_deblai} m</td></tr>
-</table>
-
-<h3>4. Hauteur maximale (déblai) (<code>hauteur_max</code>)</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{hauteur_max_max_deblai} m</td></tr>
-<tr><td><strong>Minimum</strong></td><td>{hauteur_max_min_deblai} m</td></tr>
-<tr><td><strong>Moyenne</strong></td><td>{hauteur_max_mean_deblai} m</td></tr>
-<tr><td><strong>Médiane</strong></td><td>{hauteur_max_median_deblai} m</td></tr>
-</table>
-
-<h3>5. pente moyenne (déblai) (<code>pente_moyenne</code>)</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{pente_moyenne_max_deblai}</td></tr>
-<tr><td><strong>Minimum</strong></td><td>{pente_moyenne_min_deblai}</td></tr>
-<tr><td><strong>Moyenne</strong></td><td>{pente_moyenne_mean_deblai}</td></tr>
-<tr><td><strong>Médiane</strong></td><td>{pente_moyenne_median_deblai}</td></tr>
-</table>
-
-<h3>6. pente maximale (déblai) (<code>pente_max</code>)</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{pente_max_max_deblai}</td></tr>
-<tr><td><strong>Minimum</strong></td><td>{pente_max_min_deblai}</td></tr>
-<tr><td><strong>Moyenne</strong></td><td>{pente_max_mean_deblai}</td></tr>
-<tr><td><strong>Médiane</strong></td><td>{pente_max_median_deblai}</td></tr>
-</table>
-
-<h2>Profils de type <strong>rasant</strong></h2>
-
-<h3>1. Statistiques générales des profils rasants</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Nombre total des ouvrages (somme des deux directions)</strong></td><td>{total_ouvrage_rasant}</td></tr>
-<tr><td><strong>Longueur totale des ouvrages (somme des deux directions)</strong></td><td>{total_length_rasant} m</td></tr>
-</table>
-
-<h3>2. Longueur des ouvrages des profils rasants (<code>length</code>)</h3>
-<table>
-<tr><th>Statistique</th><th>Valeur</th></tr>
-<tr><td><strong>Maximum</strong></td><td>{length_max_rasant} m</td></tr>
-<tr><td><strong>Minimum</strong></td><td>{length_min_rasant} m</td></tr>
-<tr><td><strong>Moyenne</strong></td><td>{length_mean_rasant} m</td></tr>
-<tr><td><strong>Médiane</strong></td><td>{length_median_rasant} m</td></tr>
-</table>
-
-<h2>Distribution de la hauteur moyenne</h2>
+<h3>2. Hauteur moyenne</h3>
+<p>Dans la figure ci-dessous, on peut voir la distribution de la hauteur moyenne pour les segments de type remblai et déblai, ainsi que les deux types ensemble.
+La hauteur moyenne moyenne des segments de type remblai est de <strong>{hauteur_moyenne_mean_remblai} m</strong> et celle des segments de type déblai est de <strong>{hauteur_moyenne_mean_deblai} m</strong>.</p>
 <img src="boxplot_hauteur_moyenne.png" alt="Boxplot hauteur moyenne" style="max-width:100%;margin-bottom:32px;">
 
-<h2>Distribution de la hauteur maximale</h2>
+<p>Voici la répartition des ouvrages de type <strong>remblai</strong> selon leur hauteur moyenne :</p>
+<table>
+<tr><th>Segments en remblai</th><th>Nombre</th></tr>
+<tr><td><strong>Hauteur moyenne > 10 m</strong></td><td>{remblai_10m}</td></tr>
+<tr><td><strong>Hauteur moyenne 5 - 10 m</strong></td><td>{remblai_5_10m}</td></tr>
+<tr><td><strong>Hauteur moyenne < 5 m</strong></td><td>{remblai_5m}</td></tr>
+</table>
+
+<p>Et la répartition des ouvrages de type <strong>déblai</strong> selon leur hauteur moyenne :</p>
+<table>
+<tr><th>Segments en déblai</th><th>Nombre</th></tr>
+<tr><td><strong>Hauteur moyenne > 10 m</strong></td><td>{deblai_10m}</td></tr>
+<tr><td><strong>Hauteur moyenne 5 - 10 m</strong></td><td>{deblai_5_10m}</td></tr>
+<tr><td><strong>Hauteur moyenne < 5 m</strong></td><td>{deblai_5m}</td></tr>
+</table>
+
+<h3>3. Hauteur maximale</h3>
+<p>Dans la figure ci-dessous, on peut voir la distribution de la hauteur maximale pour les segments de type remblai et déblai, ainsi que les deux types ensemble.</p>
 <img src="boxplot_hauteur_maximale.png" alt="Boxplot hauteur maximale" style="max-width:100%;margin-bottom:32px;">
+
+<p>Voici la répartition des ouvrages de type <strong>remblai</strong> selon leur hauteur maximale :</p>
+<table>
+<tr><th>Segments en remblai</th><th>Nombre</th></tr>
+<tr><td><strong>Hauteur maximale > 10 m</strong></td><td>{remblai_10m_max}</td></tr>
+<tr><td><strong>Hauteur maximale 5 - 10 m</strong></td><td>{remblai_5_10m_max}</td></tr>
+<tr><td><strong>Hauteur maximale < 5 m</strong></td><td>{remblai_5m_max}</td></tr>
+</table>
+
+<p>Et la répartition des ouvrages de type <strong>déblai</strong> selon leur hauteur maximale :</p>
+<table>
+<tr><th>Segments en déblai</th><th>Nombre</th></tr>
+<tr><td><strong>Hauteur maximale > 10 m</strong></td><td>{deblai_10m_max}</td></tr>
+<tr><td><strong>Hauteur maximale 5 - 10 m</strong></td><td>{deblai_5_10m_max}</td></tr>
+<tr><td><strong>Hauteur maximale < 5 m</strong></td><td>{deblai_5m_max}</td></tr>
+</table>
+
+<h2>Les pentes</h2>
+<p>Les pentes sont calculées pour les segments de type remblai et déblai, mais pas pour les segments de type rasant. On distingue la pente moyenne et la pente maximale.</p>
+<p>La pente est calculée de la manière suivante : <code>pente = hauteur / distance</code>.</p>
+
+<h3>4. Pente moyenne</h3>
+<p>Dans la figure ci-dessous, on peut voir la distribution de la pente moyenne pour les segments de type remblai et déblai, ainsi que les deux types ensemble.
+La pente moyenne moyenne des segments de type remblai est de <strong>{pente_moyenne_mean_remblai} m</strong> et celle des segments de type déblai est de <strong>{pente_moyenne_mean_deblai} m</strong>.</p>
+<img src="boxplot_pente_moyenne.png" alt="Boxplot pente moyenne" style="max-width:100%;margin-bottom:32px;">
+
+<p>Voici la répartition des ouvrages de type <strong>remblai</strong> selon leur pente moyenne :</p>
+<table>
+<tr><th>Segments en remblai</th><th>Nombre</th></tr>
+<tr><td><strong>Pente moyenne > 60%</strong></td><td>{remblai_60}</td></tr>
+<tr><td><strong>Pente moyenne 30 - 60%</strong></td><td>{remblai_30_60}</td></tr>
+<tr><td><strong>Pente moyenne < 30%</strong></td><td>{remblai_30}</td></tr>
+</table>
+
+<p>Et la répartition des ouvrages de type <strong>déblai</strong> selon leur pente moyenne :</p>
+<table>
+<tr><th>Segments en déblai</th><th>Nombre</th></tr>
+<tr><td><strong>Pente moyenne > 60%</strong></td><td>{deblai_60}</td></tr>
+<tr><td><strong>Pente moyenne 30 - 60%</strong></td><td>{deblai_30_60}</td></tr>
+<tr><td><strong>Pente moyenne < 30%</strong></td><td>{deblai_30}</td></tr>
+</table>
+
+<h3>5. Pente maximale</h3>
+<p>Dans la figure ci-dessous, on peut voir la distribution de la pente maximale pour les segments de type remblai et déblai, ainsi que les deux types ensemble.</p>
+<img src="boxplot_pente_maximale.png" alt="Boxplot pente maximale" style="max-width:100%;margin-bottom:32px;">
+
+<p>Voici la répartition des ouvrages de type <strong>remblai</strong> selon leur pente maximale :</p>
+<table>
+<tr><th>Segments en remblai</th><th>Nombre</th></tr>
+<tr><td><strong>Pente maximale > 10 m</strong></td><td>{remblai_60_max}</td></tr>
+<tr><td><strong>Pente maximale 5 - 10 m</strong></td><td>{remblai_30_60_max}</td></tr>
+<tr><td><strong>Pente maximale < 5 m</strong></td><td>{remblai_30_max}</td></tr>
+</table>
+
+<p>Et la répartition des ouvrages de type <strong>déblai</strong> selon leur pente maximale :</p>
+<table>
+<tr><th>Segments en déblai</th><th>Nombre</th></tr>
+<tr><td><strong>Pente maximale > 10 m</strong></td><td>{deblai_60_max}</td></tr>
+<tr><td><strong>Pente maximale 5 - 10 m</strong></td><td>{deblai_30_60_max}</td></tr>
+<tr><td><strong>Pente maximale < 5 m</strong></td><td>{deblai_30_max}</td></tr>
+</table>
 
 <hr>
 <div class="remark">
 <strong>Remarques :</strong><br>
-- Les valeurs sont extraites automatiquement du fichier GeoPackage.<br>
+- Les valeurs sont extraites automatiquement du fichier GeoPackage <em>"selected_ouvrages.gpkg"</em>.<br>
 - Pour obtenir les valeurs numériques, exécutez le script Python <code>analyse_ouvrages.py</code>.
 </div>
 </div>
